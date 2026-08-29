@@ -452,3 +452,60 @@ html,body{
   .ending-portrait{margin:0 auto}
   .ending-head-copy h2,.ending-head-copy p{text-align:center}
 }
+
+/* v14: mobile gameover usability + smartphone-first flow */
+.gameover-actions{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:8px;
+}
+.gameover-actions .pixel-btn{
+  min-width:200px;
+}
+
+@media (max-width: 520px){
+  .gameover-panel{
+    width:min(96%, 360px);
+    max-height:calc(100% - 6px);
+    padding:14px 12px 12px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+  .gameover-panel h2{
+    font-size:34px;
+    margin:2px 0 0;
+  }
+  .gameover-body{
+    margin:4px 0 2px;
+    gap:8px;
+  }
+  .gameover-sprite{
+    width:58px;
+    height:58px;
+  }
+  .gameover-panel #gameOverText{
+    font-size:13px;
+    line-height:1.5;
+    margin:0;
+  }
+  .gameover-actions{
+    position:sticky;
+    bottom:0;
+    background:linear-gradient(180deg, rgba(26,17,17,0), rgba(26,17,17,.95) 18%, rgba(26,17,17,1) 100%);
+    padding-top:10px;
+    margin-top:auto;
+    flex-direction:column;
+    align-items:center;
+    z-index:2;
+  }
+  .gameover-actions .pixel-btn{
+    width:100%;
+    max-width:260px;
+    margin:0;
+  }
+}

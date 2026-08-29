@@ -37,6 +37,17 @@
   let player, enemies=[], allies=[], drops=[], fx=[], last=0, spawnAcc=0, stageKills=0, jarObj=null, escapeOpen=false, finalStart=0, raf=0;
   const keys = {up:false, down:false, left:false, right:false};
 
+  function isMobileUI(){
+    return window.matchMedia('(max-width: 820px)').matches || window.matchMedia('(pointer: coarse)').matches;
+  }
+
+  function applyMobileFlowHints(){
+    const mobile = isMobileUI();
+    const introBtn = $('#introNextBtn');
+    if(introBtn) introBtn.textContent = mobile ? '第一陣へ' : '陣立へ';
+    renderBindings();
+  }
+
   function newPlayer(){
     return {x:W/2,y:H-45,hp:100,maxHp:100,morale:0,speed:78,attackCd:0,inv:0,dirX:0,dirY:-1,atkFlash:0,damage:1, moving:false, walkT:0};
   }
@@ -91,9 +102,15 @@
 
   function renderBindings(){
     Object.keys(bindEls).forEach(k => bindEls[k].textContent = prettyCode(bindings[k]));
-    $('#legendMove').innerHTML = `<kbd>${prettyCode(bindings.up)}</kbd><kbd>${prettyCode(bindings.down)}</kbd><kbd>${prettyCode(bindings.left)}</kbd><kbd>${prettyCode(bindings.right)}</kbd> 移動`;
-    $('#legendAction').textContent = prettyCode(bindings.action);
-    $('#legendPause').textContent = prettyCode(bindings.pause);
+    if(isMobileUI()){
+      $('#legendMove').innerHTML = `<kbd>十字</kbd> 移動`;
+      $('#legendAction').textContent = '斬';
+      $('#legendPause').textContent = 'PAUSE';
+    } else {
+      $('#legendMove').innerHTML = `<kbd>${prettyCode(bindings.up)}</kbd><kbd>${prettyCode(bindings.down)}</kbd><kbd>${prettyCode(bindings.left)}</kbd><kbd>${prettyCode(bindings.right)}</kbd> 移動`;
+      $('#legendAction').textContent = prettyCode(bindings.action);
+      $('#legendPause').textContent = prettyCode(bindings.pause);
+    }
   }
 
   function openConfig(){
@@ -120,13 +137,16 @@
     $('#bindMessage').textContent='初期設定に戻しました。';
   };
 
-  $('#newGameBtn').onclick = () => { audioStart(); startMusic('menu'); show('intro'); };
-  $('#introNextBtn').onclick = () => openConfig();
+  $('#newGameBtn').onclick = () => { audioStart(); startMusic('menu'); applyMobileFlowHints(); show('intro'); };
+  $('#introNextBtn').onclick = () => { if(isMobileUI()){ resetCampaign(); brief(0); } else { openConfig(); } };
   $('#configStartBtn').onclick = () => { resetCampaign(); brief(0); };
   $('#briefingStartBtn').onclick = () => startStage(state.stageIndex);
   $('#retryBtn').onclick = () => startStage(state.stageIndex, true);
   $('#titleReturnBtn').onclick = () => returnToTitle();
   $('#endingRetryBtn').onclick = () => { resetCampaign(); brief(0); };
+
+  window.addEventListener('resize', applyMobileFlowHints);
+  applyMobileFlowHints();
 
   $('#soundBtn').onclick = () => {
     state.sound = !state.sound;
