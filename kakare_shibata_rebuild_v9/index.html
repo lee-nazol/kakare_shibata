@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>かかれ柴田！ 鬼柴田戦記</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="shell">
+    <header class="game-header">
+      <div>
+        <div class="eyebrow">ORIGINAL RETRO SAMURAI ACTION</div>
+        <h1>かかれ柴田！</h1>
+        <p>鬼柴田戦記</p>
+      </div>
+      <div class="header-actions">
+        <button id="soundBtn" class="tiny-btn" type="button">♪ ON</button>
+        <button id="pauseBtn" class="tiny-btn" type="button">PAUSE</button>
+      </div>
+    </header>
+
+    <section class="game-frame">
+      <div class="screen-wrap">
+        <canvas id="game" width="384" height="216" aria-label="ゲーム画面"></canvas>
+
+        <section id="titleScreen" class="overlay full active">
+          <div class="title-panel">
+            <img class="title-sprite" src="images/shibata.png" alt="柴田勝家のドット絵">
+            <p class="kicker">戦国サバイバル・アクション</p>
+            <h2>かかれ柴田！</h2>
+            <p class="sub">鬼柴田戦記</p>
+            <button id="newGameBtn" class="pixel-btn primary" type="button">出陣</button>
+          </div>
+        </section>
+
+        <section id="introScreen" class="overlay full">
+          <div class="story-shell">
+            <div class="story-panel">
+              <div class="story-label">ゲームの目的</div>
+              <h2>前へ出ろ。士気を上げろ。</h2>
+              <p>
+                あなたは柴田勝家。敵陣へ踏み込むほど軍の士気が上がり、
+                後ろへ退くほど士気は落ちる。
+              </p>
+              <div class="objective-grid">
+                <div class="objective-card"><img src="images/shibata.png" alt=""><strong>斬る</strong><span>敵を倒して士気をためる</span></div>
+                <div class="objective-card"><img src="images/ally.png" alt=""><strong>かかれ柴田！</strong><span>士気MAXなら斬撃ボタンで総突撃</span></div>
+                <div class="objective-card"><img src="images/jar.png" alt=""><strong>水瓶を割る</strong><span>第二陣から出現。斬ればその陣だけ超強化</span></div>
+              </div>
+              <p class="warning">最後の北庄城だけは「勝つ」戦いではない。どこまで抗えるかが、あなたの最終記録になる。</p>
+            </div>
+            <button id="introNextBtn" class="pixel-btn primary intro-go" type="button">陣立へ</button>
+          </div>
+        </section>
+
+
+
+        <section id="configScreen" class="overlay full">
+          <div class="config-panel">
+            <div class="story-label">陣立</div>
+            <h2>操作を決めよ</h2>
+            <p class="config-lead">各項目の「変更」を押したあと、割り当てたいキーを押してください。</p>
+            <div class="config-grid">
+              <div class="config-row"><span>移動・上</span><kbd id="bindUp">W</kbd><button class="bind-btn" data-bind="up" type="button">変更</button></div>
+              <div class="config-row"><span>移動・下</span><kbd id="bindDown">S</kbd><button class="bind-btn" data-bind="down" type="button">変更</button></div>
+              <div class="config-row"><span>移動・左</span><kbd id="bindLeft">A</kbd><button class="bind-btn" data-bind="left" type="button">変更</button></div>
+              <div class="config-row"><span>移動・右</span><kbd id="bindRight">D</kbd><button class="bind-btn" data-bind="right" type="button">変更</button></div>
+              <div class="config-row action-config"><span>斬撃 / かかれ柴田</span><kbd id="bindAction">SPACE</kbd><button class="bind-btn" data-bind="action" type="button">変更</button></div>
+              <div class="config-row"><span>一時停止</span><kbd id="bindPause">P</kbd><button class="bind-btn" data-bind="pause" type="button">変更</button></div>
+            </div>
+            <p id="bindMessage" class="bind-message">士気MAX時は、斬撃ボタンがそのまま「かかれ柴田！」に変わる。</p>
+            <div class="config-actions">
+              <button id="defaultBindBtn" class="pixel-btn" type="button">初期設定に戻す</button>
+              <button id="configStartBtn" class="pixel-btn primary" type="button">この陣立で出陣</button>
+            </div>
+          </div>
+        </section>
+
+        <section id="briefingScreen" class="overlay full">
+          <div class="briefing-panel">
+            <div id="briefingTag" class="story-label">第一陣</div>
+            <h2 id="briefingTitle">かかれ柴田</h2>
+            <p id="briefingText"></p>
+            <div id="briefingObjective" class="mission-box"></div>
+            <button id="briefingStartBtn" class="pixel-btn primary" type="button">戦闘開始</button>
+          </div>
+        </section>
+
+        <section id="messageOverlay" class="overlay flash-message"></section>
+
+        <section id="gameOverScreen" class="overlay full">
+          <div class="briefing-panel compact">
+            <div id="gameOverLabel" class="story-label">無念</div>
+            <h2 id="gameOverTitle">討死</h2>
+            <p id="gameOverText">ここで倒れるわけにはいかぬ。</p>
+            <button id="retryBtn" class="pixel-btn primary" type="button">この陣をやり直す</button>
+            <button id="titleReturnBtn" class="pixel-btn" type="button">タイトル画面に戻る</button>
+          </div>
+        </section>
+
+        <section id="endingScreen" class="overlay full ending-overlay">
+          <div class="ending-card">
+            <div class="story-label">北庄城</div>
+            <h2 id="endingRank">鬼柴田</h2>
+            <p id="endingCopy"></p>
+            <div class="ending-stats">
+              <div><span>総討取</span><strong id="endKills">0</strong></div>
+              <div><span>総突撃</span><strong id="endCharges">0</strong></div>
+              <div><span>瓶割</span><strong id="endBottles">0</strong></div>
+              <div><span>北庄生存</span><strong id="endSurvival">0秒</strong></div>
+              <div><span>鬼柴田度</span><strong id="endScore">0</strong></div>
+            </div>
+            <p class="history-note">天正11年（1583）、賤ヶ岳の戦いに敗れた柴田勝家は北庄城へ退き、城と運命をともにしたと伝わる。</p>
+            <button id="endingRetryBtn" class="pixel-btn primary" type="button">もう一度かかれ！</button>
+          </div>
+        </section>
+      </div>
+
+      <aside class="hud-panel">
+        <div class="hud-row"><span>陣</span><strong id="stageName">---</strong></div>
+        <div class="meter-block"><div class="meter-label"><span>体力</span><strong id="hpText">100</strong></div><div class="meter hp"><i id="hpFill"></i></div></div>
+        <div class="meter-block"><div class="meter-label"><span>士気</span><strong id="moraleText">0</strong></div><div class="meter morale"><i id="moraleFill"></i></div></div>
+        <div class="hud-grid">
+          <div><span>討取</span><strong id="killText">0</strong></div>
+          <div><span>水瓶</span><strong id="jarText">--</strong></div>
+        </div>
+        <div class="status-card"><span>戦況</span><strong id="statusText">出陣前</strong></div>
+        <div class="legend">
+          <p id="legendMove"><kbd>WASD</kbd> 移動</p>
+          <p><kbd id="legendAction">SPACE</kbd> 斬撃 / 士気MAXで「かかれ柴田！」</p>
+          <p><kbd id="legendPause">P</kbd> 一時停止</p>
+        </div>
+      </aside>
+    </section>
+
+    <section class="mobile-controls" aria-label="スマホ操作">
+      <div class="dpad">
+        <button data-key="up" class="pad up">▲</button>
+        <button data-key="left" class="pad left">◀</button>
+        <button data-key="down" class="pad down">▼</button>
+        <button data-key="right" class="pad right">▶</button>
+      </div>
+      <div class="action-pad">
+        <button id="touchAttack" class="action-btn attack">斬</button>
+      </div>
+    </section>
+
+    <footer class="note">特定のゲーム作品・キャラクター・UIを模倣せず、戦国時代と柴田勝家の逸話をモチーフにしたオリジナル作品です。</footer>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
