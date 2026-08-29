@@ -62,10 +62,10 @@
             <h2>操作を決めよ</h2>
             <p class="config-lead">各項目の「変更」を押したあと、割り当てたいキーを押してください。</p>
             <div class="config-grid">
-              <div class="config-row"><span>移動・上</span><kbd id="bindUp">W</kbd><button class="bind-btn" data-bind="up" type="button">変更</button></div>
-              <div class="config-row"><span>移動・下</span><kbd id="bindDown">S</kbd><button class="bind-btn" data-bind="down" type="button">変更</button></div>
-              <div class="config-row"><span>移動・左</span><kbd id="bindLeft">A</kbd><button class="bind-btn" data-bind="left" type="button">変更</button></div>
-              <div class="config-row"><span>移動・右</span><kbd id="bindRight">D</kbd><button class="bind-btn" data-bind="right" type="button">変更</button></div>
+              <div class="config-row"><span>移動・上</span><kbd id="bindUp">↑</kbd><button class="bind-btn" data-bind="up" type="button">変更</button></div>
+              <div class="config-row"><span>移動・下</span><kbd id="bindDown">↓</kbd><button class="bind-btn" data-bind="down" type="button">変更</button></div>
+              <div class="config-row"><span>移動・左</span><kbd id="bindLeft">←</kbd><button class="bind-btn" data-bind="left" type="button">変更</button></div>
+              <div class="config-row"><span>移動・右</span><kbd id="bindRight">→</kbd><button class="bind-btn" data-bind="right" type="button">変更</button></div>
               <div class="config-row action-config"><span>斬撃 / かかれ柴田</span><kbd id="bindAction">SPACE</kbd><button class="bind-btn" data-bind="action" type="button">変更</button></div>
               <div class="config-row"><span>一時停止</span><kbd id="bindPause">P</kbd><button class="bind-btn" data-bind="pause" type="button">変更</button></div>
             </div>
@@ -89,11 +89,16 @@
 
         <section id="messageOverlay" class="overlay flash-message"></section>
 
+        
+
         <section id="gameOverScreen" class="overlay full">
-          <div class="briefing-panel compact">
+          <div class="briefing-panel compact gameover-panel">
             <div id="gameOverLabel" class="story-label">無念</div>
             <h2 id="gameOverTitle">討死</h2>
-            <p id="gameOverText">ここで倒れるわけにはいかぬ。</p>
+            <div class="gameover-body">
+              <img class="gameover-sprite" src="images/shibata_down.png" alt="倒れた柴田勝家">
+              <p id="gameOverText">ここで倒れるわけにはいかぬ。</p>
+            </div>
             <button id="retryBtn" class="pixel-btn primary" type="button">この陣をやり直す</button>
             <button id="titleReturnBtn" class="pixel-btn" type="button">タイトル画面に戻る</button>
           </div>
@@ -102,8 +107,13 @@
         <section id="endingScreen" class="overlay full ending-overlay">
           <div class="ending-card">
             <div class="story-label">北庄城</div>
-            <h2 id="endingRank">鬼柴田</h2>
-            <p id="endingCopy"></p>
+            <div class="ending-head">
+              <img class="ending-portrait" src="images/portrait.png" alt="柴田勝家">
+              <div class="ending-head-copy">
+                <h2 id="endingRank">鬼柴田</h2>
+                <p id="endingCopy"></p>
+              </div>
+            </div>
             <div class="ending-stats">
               <div><span>総討取</span><strong id="endKills">0</strong></div>
               <div><span>総突撃</span><strong id="endCharges">0</strong></div>

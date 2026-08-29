@@ -14,7 +14,7 @@
   };
 
   const assets = {};
-  const files = ['shibata','shibata_walk','enemy','spearman','ally','jar','heal','banner','fire','castle','ground','stone','slash'];
+  const files = ['shibata','shibata_walk','enemy','spearman','ally','jar','heal','banner','fire','castle','ground','stone','slash','tree','palisade','wall','shibata_down'];
   files.forEach(n => { const img = new Image(); img.src = `images/${n}.png`; assets[n] = img; });
 
   const stages = [
@@ -31,7 +31,7 @@
 
   const state = {
     screen:'title', stageIndex:0, totalKills:0, charges:0, bottleBreaks:0,
-    stageBottleBroken:false, finalSeconds:0, score:0, sound:true, paused:false, checkpoint:null
+    stageBottleBroken:false, finalSeconds:0, score:0, sound:true, paused:false, checkpoint:null, chargeFx:0, chargeTimer:null
   };
 
   let player, enemies=[], allies=[], drops=[], fx=[], last=0, spawnAcc=0, stageKills=0, jarObj=null, escapeOpen=false, finalStart=0, raf=0;
@@ -77,7 +77,7 @@
 
   function resetCampaign(){
     state.totalKills=0; state.charges=0; state.bottleBreaks=0; state.stageBottleBroken=false;
-    state.finalSeconds=0; state.score=0; state.paused=false; state.checkpoint=null;
+    state.finalSeconds=0; state.score=0; state.paused=false; state.checkpoint=null; state.chargeFx=0; clearTimeout(state.chargeTimer);
     $('#pauseBtn').textContent='PAUSE';
   }
 
@@ -161,7 +161,7 @@
     } else {
       state.checkpoint={totalKills:state.totalKills,charges:state.charges,bottleBreaks:state.bottleBreaks,score:state.score};
     }
-    state.stageIndex=i; state.screen='play'; show(null); state.paused=false; state.stageBottleBroken=false;
+    state.stageIndex=i; state.screen='play'; show(null); state.paused=false; state.stageBottleBroken=false; state.chargeFx=0;
     player=newPlayer(); enemies=[]; allies=[]; drops=[]; fx=[]; spawnAcc=0; stageKills=0; escapeOpen=false;
     jarObj=i === 0 ? null : randomJarPosition();
     const s=stages[i];
@@ -188,6 +188,7 @@
     if(player.attackCd>0) player.attackCd-=dt;
     if(player.inv>0) player.inv-=dt;
     if(player.atkFlash>0) player.atkFlash-=dt;
+    if(state.chargeFx>0) state.chargeFx=Math.max(0,state.chargeFx-dt);
 
     let dx=(keys.right?1:0)-(keys.left?1:0), dy=(keys.down?1:0)-(keys.up?1:0);
     player.moving=!!(dx||dy);
@@ -276,10 +277,11 @@
 
   function special(){
     if(player.morale<100)return;
-    player.morale=0; state.charges++; state.score+=80;
+    player.morale=0; state.charges++; state.score+=80; state.chargeFx=.62;
     flash('かかれ柴田！',650); shake(); beep(90,.18); setTimeout(()=>beep(180,.16),120);
     for(let i=0;i<11;i++) allies.push({x:14+i*35+(Math.random()*8-4),y:H+10+Math.random()*18,life:2.1});
   }
+
 
   function shatterBottle(){
     if(state.stageBottleBroken||!jarObj)return;
@@ -310,7 +312,7 @@
 
   function returnToTitle(){
     stopMusic(); cancelAnimationFrame(raf); resetCampaign();
-    state.stageIndex=0; stageKills=0; player=null; enemies=[]; allies=[]; drops=[]; fx=[]; jarObj=null; escapeOpen=false;
+    state.stageIndex=0; stageKills=0; player=null; enemies=[]; allies=[]; drops=[]; fx=[]; jarObj=null; escapeOpen=false; state.chargeFx=0;
     ui.stage.textContent='---'; ui.jar.textContent='--'; ui.status.textContent='出陣前'; updateHUD();
     show('title'); startMusic('menu'); requestAnimationFrame(attract);
   }
@@ -359,7 +361,7 @@
 
   function draw(t){
     const s=stages[state.stageIndex]||stages[0]; drawTiled(s.terrain); drawDecor(s.mode,t); if(escapeOpen)drawEscape(); if(jarObj)drawJar();
-    drops.forEach(drawDrop); allies.forEach(drawAlly); enemies.forEach(drawEnemy); if(player)drawPlayer(); fx.forEach(drawFx); drawFrontLine();
+    drops.forEach(drawDrop); allies.forEach(drawAlly); enemies.forEach(drawEnemy); if(player)drawPlayer(); fx.forEach(drawFx); drawFrontLine(); if(state.chargeFx>0) drawChargeFx();
     if(state.paused){ctx.fillStyle='#000a';ctx.fillRect(0,0,W,H);pixelText('PAUSE',W/2,H/2,'#f0d79a',18,'center')}
   }
 
@@ -370,8 +372,30 @@
 
   function drawDecor(mode,t){
     ctx.fillStyle='#0002';ctx.fillRect(0,0,W,18);
-    for(let i=0;i<4;i++){const x=20+i*105;drawImg('banner',x,10,24,24)}
-    if(mode==='last'){drawImg('castle',W/2-28,2,56,56);for(let i=0;i<5;i++){const x=20+i*84,y=160+(i%2)*18;drawImg('fire',x,y,21,21)}}
+    const st = state.stageIndex;
+    if(st===0){
+      for(let i=0;i<3;i++) drawImg('banner',18+i*118,8,28,32);
+      drawImg('tree',2,112,34,40); drawImg('tree',338,116,34,40);
+      drawImg('palisade',18,136,54,40); drawImg('palisade',312,130,54,40);
+      drawImg('fire',18,181,16,22); drawImg('fire',350,181,16,22);
+    } else if(st===1){
+      drawImg('wall',8,4,78,46); drawImg('wall',86,4,78,46); drawImg('wall',164,4,78,46); drawImg('wall',242,4,78,46); drawImg('wall',320,4,56,46);
+      for(let i=0;i<4;i++) drawImg('banner',18+i*92,16,26,30);
+      for(let i=0;i<3;i++) drawImg('fire',30+i*118,178,18,24);
+    } else if(st===2){
+      drawImg('wall',0,4,72,44); drawImg('wall',312,4,72,44);
+      drawImg('tree',8,110,34,40); drawImg('tree',340,112,34,40);
+      drawImg('palisade',74,150,54,40); drawImg('palisade',256,146,54,40);
+      drawImg('banner',176,12,28,32);
+      for(let i=0;i<2;i++) drawImg('fire',28+i*300,180,18,24);
+    } else {
+      drawImg('castle',W/2-46,18,92,92);
+      for(let i=0;i<6;i++){
+        const x=18+i*68, y=160+(i%2)*14;
+        drawImg('fire',x,y,26,30);
+      }
+      drawImg('banner',18,22,24,28); drawImg('banner',342,22,24,28);
+    }
   }
 
   function drawFrontLine(){
@@ -379,16 +403,32 @@
     pixelText('攻勢線',4,82,'#d9b366',7,'left');pixelText('後退線',4,181,'#9a8974',7,'left');
   }
 
+
+  function drawChargeFx(){
+    const a = Math.max(0, Math.min(1, state.chargeFx / .62));
+    ctx.save();
+    ctx.fillStyle=`rgba(120,20,12,${0.18*a})`;
+    ctx.fillRect(0,0,W,H);
+    for(let i=0;i<8;i++){
+      const y = 30 + i*22;
+      ctx.fillStyle=`rgba(255,212,120,${0.18*a})`;
+      ctx.beginPath();
+      ctx.moveTo(0,y); ctx.lineTo(86,y-8); ctx.lineTo(200,y+8); ctx.lineTo(W,y+2); ctx.lineTo(W,y+10); ctx.lineTo(0,y+18);
+      ctx.closePath(); ctx.fill();
+    }
+    ctx.restore();
+  }
+
   function drawPlayer(){
     const blink=player.inv>0&&Math.floor(performance.now()/70)%2===0;
-    if(!blink){ const sprite=player.moving&&Math.floor(player.walkT*7)%2?'shibata_walk':'shibata'; drawImg(sprite,player.x-12,player.y-17,32,32); }
+    if(!blink){ const sprite=player.moving&&Math.floor(player.walkT*7)%2?'shibata_walk':'shibata'; drawImg(sprite,player.x-15,player.y-22,38,38); }
     if(player.atkFlash>0){ctx.save();ctx.translate(player.x+6,player.y);ctx.rotate(Math.atan2(player.dirY,player.dirX));drawImg('slash',4,-18,36,36);ctx.restore()}
   }
-  function drawEnemy(e){drawImg(e.type==='spear'?'spearman':'enemy',e.x-10,e.y-15,28,28)}
-  function drawAlly(a){drawImg('ally',a.x-9,a.y-14,26,26)}
-  function drawDrop(d){drawImg('heal',d.x-8,d.y-8,17,17)}
-  function drawJar(){drawImg('jar',jarObj.x-14,jarObj.y-17,30,30);if(!state.stageBottleBroken&&Math.hypot(player.x-jarObj.x,player.y-jarObj.y)<42)pixelText('斬って割れ！',jarObj.x,jarObj.y-23,'#f3d791',8,'center')}
-  function drawEscape(){ctx.fillStyle='#d9b65b66';ctx.fillRect(W/2-36,0,72,22);pixelText('▲ 北庄への退路 ▲',W/2,13,'#ffe1a0',8,'center')}
+  function drawEnemy(e){drawImg(e.type==='spear'?'spearman':'enemy',e.x-12,e.y-18,30,30)}
+  function drawAlly(a){drawImg('ally',a.x-11,a.y-17,29,29)}
+  function drawDrop(d){drawImg('heal',d.x-9,d.y-9,20,20)}
+  function drawJar(){drawImg('jar',jarObj.x-16,jarObj.y-20,34,34);if(!state.stageBottleBroken&&Math.hypot(player.x-jarObj.x,player.y-jarObj.y)<44)pixelText('斬って割れ！',jarObj.x,jarObj.y-25,'#f3d791',8,'center')}
+  function drawEscape(){ctx.fillStyle='#d9b65b66';ctx.fillRect(W/2-42,0,84,24);drawImg('banner',W/2-54,0,22,26);drawImg('banner',W/2+32,0,22,26);pixelText('▲ 北庄への退路 ▲',W/2,14,'#ffe1a0',8,'center')}
 
   function drawFx(f){
     if(f.type==='burst'){ctx.fillStyle=`rgba(240,211,147,${f.life*2})`;for(let i=0;i<5;i++)ctx.fillRect(f.x+(i-2)*4,f.y+(i%2?5:-5),2,2)}
@@ -463,7 +503,7 @@
   function attract(){
     if(state.screen==='title'){
       ctx.fillStyle='#33241d';ctx.fillRect(0,0,W,H);for(let y=0;y<H;y+=16)for(let x=0;x<W;x+=16)drawImg('ground',x,y,16,16);
-      drawImg('castle',W/2-38,26,76,76);for(let i=0;i<6;i++)drawImg('fire',25+i*68,160+(i%2)*14,22,22);pixelText('1583',W/2,130,'#d7b261',14,'center');requestAnimationFrame(attract);
+      drawImg('castle',W/2-46,18,92,92);for(let i=0;i<6;i++)drawImg('fire',18+i*68,160+(i%2)*14,26,30);pixelText('1583',W/2,130,'#d7b261',14,'center');requestAnimationFrame(attract);
     }
   }
 
